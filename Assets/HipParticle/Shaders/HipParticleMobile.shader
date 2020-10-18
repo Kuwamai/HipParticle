@@ -85,15 +85,15 @@
                 o.triuv = triVert[round(v.vertex.y)];
                 if (abs(UNITY_MATRIX_P[0][2]) < 0.0001) sz *= 2;
                 sz *= pow(determinant((float3x3)UNITY_MATRIX_M),1/3.0);
-                o.vertex = vp1+float4(o.uv*sz*float2(aspectRatio,1),0,0);
+                o.vertex = vp1+float4(o.triuv*sz*float2(aspectRatio,1),0,0);
                 return o;
             }
             
             fixed4 frag (v2f i) : SV_Target
             {
                 float l = length(i.triuv);
-                float3 c = tex2D(_Col, i.uv);
-                if(length(c) < 0.1 && length(tex2D(_Pos, i.uv)) < 0.1) clip(-1);
+                float3 c = tex2D(_Col, i.uv).xyz;
+                if(length(c) < 0.001 && length(tex2D(_Pos, i.uv).xyz) < 0.1) clip(-1);
                 clip(0.5-l);
                 return float4(c, 1.0 - pow(max(0.0, abs(l) * 2.2 - 0.1), 0.2));
             }
