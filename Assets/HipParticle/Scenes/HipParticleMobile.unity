@@ -123,6 +123,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: ConstellationLine
       objectReference: {fileID: 0}
+    - target: {fileID: 1734431167554066, guid: 4971b1241fd564745a3a33cbc9fdac5a, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 4094628960794872, guid: 4971b1241fd564745a3a33cbc9fdac5a, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0

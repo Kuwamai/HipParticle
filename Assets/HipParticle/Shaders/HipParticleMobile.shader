@@ -33,7 +33,7 @@
             struct v2f
             {
                 float2 uv : TEXCOORD0;
-                float2 triuv : TEXCOORD1;
+                float3 color : TEXCOORD1;
                 float4 vertex : SV_POSITION;
             };
             
@@ -72,30 +72,32 @@
                 float aspectRatio = - UNITY_MATRIX_P[0][0] / UNITY_MATRIX_P[1][1];
 
                 float2 uv = float2((floor(v.vertex.z / texWidth) + 0.5) / texWidth, (fmod(v.vertex.z, texWidth) + 0.5) / texWidth);
-                o.uv = uv;
 
                 float3 p = unpack(uv).xzy;
                 float4 vp1 = UnityObjectToClipPos(float4(p, 1));
+
+                float3 c = tex2Dlod(_Col, float4(uv,0,0)).xyz;
+                o.color = c;
 
                 float sz = unpack_int(uv) * _Mag_param + _Mag_min;
                 float3x2 triVert = float3x2(
                     float2(0, 1),
                     float2(0.9, -0.5),
                     float2(-0.9, -0.5));
-                o.triuv = triVert[round(v.vertex.y)];
+                o.uv = triVert[round(v.vertex.y)];
+
+                if(length(c) < 0.1 && length(p) < 0.1) sz = 0;
                 if (abs(UNITY_MATRIX_P[0][2]) < 0.0001) sz *= 2;
                 sz *= pow(determinant((float3x3)UNITY_MATRIX_M),1/3.0);
-                o.vertex = vp1+float4(o.triuv*sz*float2(aspectRatio,1),0,0);
+                o.vertex = vp1+float4(o.uv*sz*float2(aspectRatio,1),0,0);
                 return o;
             }
             
             fixed4 frag (v2f i) : SV_Target
             {
-                float l = length(i.triuv);
-                float3 c = tex2D(_Col, i.uv).xyz;
-                if(length(c) < 0.001 && length(tex2D(_Pos, i.uv).xyz) < 0.1) clip(-1);
+                float l = length(i.uv);
                 clip(0.5-l);
-                return float4(c, 1.0 - pow(max(0.0, abs(l) * 2.2 - 0.1), 0.2));
+                return float4(i.color, 1.0 - pow(max(0.0, abs(l) * 2.2 - 0.1), 0.2));
             }
             ENDCG
         }
