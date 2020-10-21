@@ -17,11 +17,11 @@
 1. ConstellationLine.prefabは星座線です
 
 ## References & Includings
-HipParticle.shaderはPhi16_さんが書いてくださった[pointcloud.shader](https://twitter.com/phi16_/status/1041256230545612800)を一部改変して作成しました。
+* HipParticle.shaderはPhi16_さんが書いてくださった[pointcloud.shader](https://twitter.com/phi16_/status/1041256230545612800)を一部改変して作成しました
 
-本Assetは表示フォントにM PLUS Rounded 1c(https://fonts.google.com/specimen/M+PLUS+Rounded+1c) を使用しています。  
-Licensed under SIL Open Font License 1.1 (http://scripts.sil.org/OFL)  
-Copyright 2016 The Rounded M+ Project Authors.
+* 表示フォントにM PLUS Rounded 1c (https://fonts.google.com/specimen/M+PLUS+Rounded+1c) を使用しています
+   * Licensed under SIL Open Font License 1.1 (http://scripts.sil.org/OFL)  
+   * Copyright 2016 The Rounded M+ Project Authors.
 
 ## License
 This repository is licensed under the MIT license, see [LICENSE](./LICENSE).
