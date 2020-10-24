@@ -23,5 +23,9 @@
    * Licensed under SIL Open Font License 1.1 (http://scripts.sil.org/OFL)  
    * Copyright 2016 The Rounded M+ Project Authors.
 
+## Collaborators
+本パッケージは以下のメンバーの協力の元制作しました  
+* [天野ステラ](https://twitter.com/stellagear): 星の名称パネル作成
+
 ## License
 This repository is licensed under the MIT license, see [LICENSE](./LICENSE).
