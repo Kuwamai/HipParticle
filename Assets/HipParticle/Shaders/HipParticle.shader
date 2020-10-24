@@ -38,6 +38,7 @@
             };
             
             sampler2D _Pos;
+            float4 _Pos_TexelSize;
             sampler2D _Col;
             sampler2D _Mag;
             float _Mag_param;
@@ -50,7 +51,7 @@
             
             //テクスチャからfloat値を取り出す
             float3 unpack(float2 uv) {
-                float texWidth = 1024.0;
+                float texWidth = _Pos_TexelSize.z;
                 float2 e = float2(-1.0/texWidth/2, 1.0/texWidth/2);
                 uint3 v0 = uint3(tex2Dlod(_Pos, float4(uv + e.xy,0,0)).xyz * 255.) << 0;
                 uint3 v1 = uint3(tex2Dlod(_Pos, float4(uv + e.yy,0,0)).xyz * 255.) << 8;
