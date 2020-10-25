@@ -70,7 +70,23 @@
                 v /= 16777216;
                 return v;
             }
-            
+
+            float3 ComputeAlignAxisX() 
+            {
+#if defined(USING_STEREO_MATRICES)
+                return normalize(unity_StereoCameraToWorld[0]._m00_m10_m20 + unity_StereoCameraToWorld[1]._m00_m10_m20);
+#else
+                return unity_CameraToWorld._m00_m10_m20;
+#endif
+            }
+            float3 ComputeAlignAxisY()
+            {
+#if defined(USING_STEREO_MATRICES)
+                return normalize(unity_StereoCameraToWorld[0]._m01_m11_m21 + unity_StereoCameraToWorld[1]._m01_m11_m21);
+#else
+                return unity_CameraToWorld._m01_m11_m21;
+#endif
+            }
             [maxvertexcount(3)]
             void geom(triangle appdata IN[3], inout TriangleStream<v2f> stream) {
                 float2 uv = (IN[0].uv + IN[1].uv + IN[2].uv) / 3;
@@ -82,24 +98,26 @@
                 if(length(p) < 0.1 && length(c) < 0.1) return;
                 
                 float sz = unpack_int(uv) * _Mag_param + _Mag_min;
-                //VRモードだと2回処理が走って描画サイズが倍になる
-                //VR以外のカメラのとき、描画サイズを倍にすることで対処
-                if (abs(UNITY_MATRIX_P[0][2]) < 0.0001) sz *= 2;
 
                 sz *= pow(determinant((float3x3)UNITY_MATRIX_M),1/3.0);
-                float aspectRatio = - UNITY_MATRIX_P[0][0] / UNITY_MATRIX_P[1][1];
                 v2f o;
-                float4 vp1 = UnityObjectToClipPos(float4(p, 1));
-                
+                float3 worldPos = mul(unity_ObjectToWorld, float4(p, 1));
+
+                float3 xAxis = ComputeAlignAxisX();
+                float3 yAxis = ComputeAlignAxisY();
+                float2 offset;
                 o.color = c;
                 o.uv = float2(0,1);
-                o.vertex = vp1+float4(o.uv*sz*float2(aspectRatio,1),0,0);
+                offset = o.uv * sz;
+                o.vertex = UnityWorldToClipPos(worldPos + xAxis * offset.x + yAxis * offset.y);
                 stream.Append(o);
-                o.uv = float2(-0.9,-0.5);
-                o.vertex = vp1+float4(o.uv*sz*float2(aspectRatio,1),0,0);
+                o.uv = float2(0.9, -0.5);
+                offset = o.uv * sz;
+                o.vertex = UnityWorldToClipPos(worldPos + xAxis * offset.x + yAxis * offset.y);
                 stream.Append(o);
-                o.uv = float2(0.9,-0.5);
-                o.vertex = vp1+float4(o.uv*sz*float2(aspectRatio,1),0,0);
+                o.uv = float2(-0.9, -0.5);
+                offset = o.uv * sz;
+                o.vertex = UnityWorldToClipPos(worldPos + xAxis * offset.x + yAxis * offset.y);
                 stream.Append(o);
                 stream.RestartStrip();
             }
