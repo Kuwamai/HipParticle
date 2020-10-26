@@ -26,6 +26,7 @@
 ## Collaborators
 本パッケージは以下のメンバーの協力の元制作しました  
 * [天野ステラ](https://twitter.com/stellagear): 星の名称パネル作成
+* [三田村綯夜](https://twitter.com/kuzusaki): 星座線生成ツール作成
 
 ## License
 This repository is licensed under the MIT license, see [LICENSE](./LICENSE).
