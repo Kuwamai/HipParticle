@@ -40,6 +40,7 @@
             sampler2D _Pos;
             float4 _Pos_TexelSize;
             sampler2D _Col;
+            float4 _Col_TexelSize;
             sampler2D _Mag;
             float _Mag_param;
             float _Mag_min;
@@ -79,6 +80,7 @@
                 return unity_CameraToWorld._m00_m10_m20;
 #endif
             }
+
             float3 ComputeAlignAxisY()
             {
 #if defined(USING_STEREO_MATRICES)
@@ -87,26 +89,28 @@
                 return unity_CameraToWorld._m01_m11_m21;
 #endif
             }
+
             [maxvertexcount(3)]
             void geom(triangle appdata IN[3], inout TriangleStream<v2f> stream) {
+                v2f o;
+                float texWidth = _Col_TexelSize.z;
                 float2 uv = (IN[0].uv + IN[1].uv + IN[2].uv) / 3;
-                uv.x = (floor(uv.x * 512) + 0.5) / 512.0;
-                uv.y = (floor(uv.y * 512) + 0.5) / 512.0;
+                uv.x = (floor(uv.x * texWidth) + 0.5) / texWidth;
+                uv.y = (floor(uv.y * texWidth) + 0.5) / texWidth;
                 
                 float3 p = unpack(uv).xzy;
                 float3 c = tex2Dlod(_Col, float4(uv,0,0)).xyz;
                 if(length(p) < 0.1 && length(c) < 0.1) return;
                 
-                float sz = unpack_int(uv) * _Mag_param + _Mag_min;
-
-                sz *= pow(determinant((float3x3)UNITY_MATRIX_M),1/3.0);
-                v2f o;
                 float3 worldPos = mul(unity_ObjectToWorld, float4(p, 1));
+                o.color = c;
+
+                float sz = unpack_int(uv) * _Mag_param + _Mag_min;
+                sz *= pow(determinant((float3x3)UNITY_MATRIX_M),1/3.0);
 
                 float3 xAxis = ComputeAlignAxisX();
                 float3 yAxis = ComputeAlignAxisY();
                 float2 offset;
-                o.color = c;
                 o.uv = float2(0,1);
                 offset = o.uv * sz;
                 o.vertex = UnityWorldToClipPos(worldPos + xAxis * offset.x + yAxis * offset.y);

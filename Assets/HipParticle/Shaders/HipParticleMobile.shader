@@ -40,6 +40,7 @@
             sampler2D _Pos;
             float4 _Pos_TexelSize;
             sampler2D _Col;
+            float4 _Col_TexelSize;
             sampler2D _Mag;
             float _Mag_param;
             float _Mag_min;
@@ -86,29 +87,27 @@
             v2f vert (appdata v)
             {
                 v2f o;
-                float texWidth = 512.0;
-
+                float texWidth = _Col_TexelSize.z;
                 float2 uv = float2((floor(v.vertex.z / texWidth) + 0.5) / texWidth, (fmod(v.vertex.z, texWidth) + 0.5) / texWidth);
 
                 float3 p = unpack(uv).xzy;
-
                 float3 c = tex2Dlod(_Col, float4(uv,0,0)).xyz;
+
+                float3 worldPos = mul(unity_ObjectToWorld, float4(p, 1));
                 o.color = c;
 
                 float sz = unpack_int(uv) * _Mag_param + _Mag_min;
                 sz *= pow(determinant((float3x3)UNITY_MATRIX_M),1/3.0);
                 if(length(c) < 0.1 && length(p) < 0.1) sz = 0;
 
-                float3 worldPos = mul(unity_ObjectToWorld, float4(p, 1));
-
                 float3 xAxis = ComputeAlignAxisX();
                 float3 yAxis = ComputeAlignAxisY();
                 float2 offset;
-
                 float3x2 triVert = float3x2(
                     float2(0, 1),
                     float2(-0.9, -0.5),
                     float2(0.9, -0.5));
+
                 o.uv = triVert[round(v.vertex.y)];
                 offset = o.uv * sz;
                 o.vertex = UnityWorldToClipPos(worldPos + xAxis * offset.x + yAxis * offset.y);
