@@ -27,6 +27,7 @@
 本パッケージは以下のメンバーの協力の元制作しました  
 * [天野ステラ](https://twitter.com/stellagear): 星の名称パネル作成
 * [三田村綯夜](https://twitter.com/kuzusaki): 星座線生成ツール作成
+* [Ram.Type-0](https://github.com/RamType0): Billboard生成の改良, 星座線軽量化 ([#3](https://github.com/Kuwamai/HipParticle/pull/3), [#4](https://github.com/Kuwamai/HipParticle/pull/4))
 
 ## License
 This repository is licensed under the MIT license, see [LICENSE](./LICENSE).
