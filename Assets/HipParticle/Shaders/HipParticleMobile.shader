@@ -2,9 +2,9 @@
 {
     Properties
     {
-        _Pos ("Pos", 2D) = "white" {}
-        _Col ("Col", 2D) = "white" {}
-        _Mag ("Mag", 2D) = "white" {}
+        [HDR] _Pos ("Pos", 2D) = "white" {}
+        [HDR] _Col ("Col", 2D) = "white" {}
+        [HDR] _Mag ("Mag", 2D) = "white" {}
         _Mag_param ("Star brightness", Range(0, 250)) = 100
         _Mag_min ("min brightness", Range(0, 1)) = 0.025
     }
@@ -38,10 +38,13 @@
             };
             
             sampler2D _Pos;
+            float4 _Pos_HDR;
             float4 _Pos_TexelSize;
             sampler2D _Col;
+            float4 _Col_HDR;
             float4 _Col_TexelSize;
             sampler2D _Mag;
+            float4 _Mag_HDR;
             float _Mag_param;
             float _Mag_min;
             
@@ -49,10 +52,10 @@
             float3 unpack(float2 uv) {
                 float texWidth = _Pos_TexelSize.z;
                 float2 e = float2(-1.0/texWidth/2, 1.0/texWidth/2);
-                uint3 v0 = uint3(tex2Dlod(_Pos, float4(uv + e.xy,0,0)).xyz * 255.) << 0;
-                uint3 v1 = uint3(tex2Dlod(_Pos, float4(uv + e.yy,0,0)).xyz * 255.) << 8;
-                uint3 v2 = uint3(tex2Dlod(_Pos, float4(uv + e.xx,0,0)).xyz * 255.) << 16;
-                uint3 v3 = uint3(tex2Dlod(_Pos, float4(uv + e.yx,0,0)).xyz * 255.) << 24;
+                uint3 v0 = uint3(DecodeHDR(tex2Dlod(_Pos, float4(uv + e.xy,0,0)), _Pos_HDR).xyz * 255.) << 0;
+                uint3 v1 = uint3(DecodeHDR(tex2Dlod(_Pos, float4(uv + e.yy,0,0)), _Pos_HDR).xyz * 255.) << 8;
+                uint3 v2 = uint3(DecodeHDR(tex2Dlod(_Pos, float4(uv + e.xx,0,0)), _Pos_HDR).xyz * 255.) << 16;
+                uint3 v3 = uint3(DecodeHDR(tex2Dlod(_Pos, float4(uv + e.yx,0,0)), _Pos_HDR).xyz * 255.) << 24;
                 uint3 v = v0 + v1 + v2 + v3;
                 return asfloat(v);
             }
@@ -60,9 +63,9 @@
             //テクスチャからint値を取り出す
             float3 unpack_int(float2 uv) {
                 float v = 0;
-                v *= 256.; v += tex2Dlod(_Mag, float4(uv,0,0)).r * 255.;
-                v *= 256.; v += tex2Dlod(_Mag, float4(uv,0,0)).g * 255.;
-                v *= 256.; v += tex2Dlod(_Mag, float4(uv,0,0)).b * 255.;
+                v *= 256.; v += DecodeHDR(tex2Dlod(_Mag, float4(uv,0,0)), _Mag_HDR).r * 255.;
+                v *= 256.; v += DecodeHDR(tex2Dlod(_Mag, float4(uv,0,0)), _Mag_HDR).g * 255.;
+                v *= 256.; v += DecodeHDR(tex2Dlod(_Mag, float4(uv,0,0)), _Mag_HDR).b * 255.;
                 v /= 16777216;
                 return v;
             }
@@ -91,7 +94,7 @@
                 float2 uv = float2((floor(v.vertex.z / texWidth) + 0.5) / texWidth, (fmod(v.vertex.z, texWidth) + 0.5) / texWidth);
 
                 float3 p = unpack(uv).xzy;
-                float3 c = tex2Dlod(_Col, float4(uv,0,0)).xyz;
+                float3 c = DecodeHDR(tex2Dlod(_Col, float4(uv,0,0)), _Col_HDR).xyz;
 
                 float3 worldPos = mul(unity_ObjectToWorld, float4(p, 1));
                 o.color = c;
