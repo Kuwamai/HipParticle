@@ -4,6 +4,11 @@
 ## Description
 ヒッパルコス星表に記録された星の位置、色、明るさを立体的に描画するシェーダーです。おまけとして立体的な星座線、星の名称パネルが含まれています。
 
+## Example of use
+* [Cluster(VR, Desktop, iOS, Android)](https://twitter.com/beet_lex/status/1328306279270400000)
+* [VRChat(PC VR, Desktop, Oculus Quest)](https://twitter.com/beet_lex/status/1118500700604915712?s=20)
+* Styly AR
+
 ## Usage
 1. [Releases](https://github.com/Kuwamai/HipParticle/releases)からUnitypackageをダウンロードします
 1. Unity projectにUnitypackageをimportします
