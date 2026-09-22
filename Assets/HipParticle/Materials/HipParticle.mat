@@ -8,7 +8,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: HipParticle
-  m_Shader: {fileID: 4800000, guid: 53af4a56d99d04e06959cb1ec8fff153, type: 3}
+  m_Shader: {fileID: 4800000, guid: 34e7b14623644484591818b61dbd53fe, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
