@@ -61,7 +61,7 @@
             }
             
             //テクスチャからint値を取り出す
-            float3 unpack_int(float2 uv) {
+            float unpack_int(float2 uv) {
                 float v = 0;
                 v *= 256.; v += DecodeHDR(tex2Dlod(_Mag, float4(uv,0,0)), _Mag_HDR).r * 255.;
                 v *= 256.; v += DecodeHDR(tex2Dlod(_Mag, float4(uv,0,0)), _Mag_HDR).g * 255.;
