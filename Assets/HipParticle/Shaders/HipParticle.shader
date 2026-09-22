@@ -7,11 +7,14 @@
         [HDR] _Mag ("Mag", 2D) = "white" {}
         _Mag_param ("Star brightness", Range(0, 250)) = 100
         _Mag_min ("min brightness", Range(0, 1)) = 0.025
+        _GlowIntensity ("Glow intensity", Range(0, 4)) = 1.8
+        _GlowFalloff ("Glow falloff", Range(4, 32)) = 12
+        _CoreBoost ("Core boost", Range(0, 4)) = 1.25
     }
     SubShader
     {
         Tags { "RenderType" = "Transparent" "Queue"="Transparent+1" }
-        Blend SrcAlpha OneMinusSrcAlpha, One OneMinusSrcAlpha
+        Blend SrcAlpha One
         ZWrite Off
         LOD 100
 
@@ -47,6 +50,9 @@
             float4 _Mag_HDR;
             float _Mag_param;
             float _Mag_min;
+            float _GlowIntensity;
+            float _GlowFalloff;
+            float _CoreBoost;
             
             //テクスチャからfloat値を取り出す
             float3 unpack(float2 uv) {
@@ -117,11 +123,16 @@
                 return o;
             }
             
-            fixed4 frag (v2f i) : SV_Target
+            half4 frag (v2f i) : SV_Target
             {
-                float l = length(i.uv);
-                clip(0.5-l);
-                return float4(i.color, 1.0 - pow(max(0.0, abs(l) * 2.2 - 0.1), 0.2));
+                float radiusSq = dot(i.uv, i.uv);
+                clip(0.25 - radiusSq);
+
+                half halo = exp2(-radiusSq * _GlowFalloff);
+                half core = exp2(-radiusSq * _GlowFalloff * 8.0);
+                half alpha = saturate(halo + core * 0.5);
+                half3 color = i.color * _GlowIntensity * (1.0 + core * _CoreBoost);
+                return half4(color, alpha);
             }
             ENDCG
         }
