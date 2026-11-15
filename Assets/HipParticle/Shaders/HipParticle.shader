@@ -5,16 +5,24 @@
         [HDR] _Pos ("Pos", 2D) = "white" {}
         [HDR] _Col ("Col", 2D) = "white" {}
         [HDR] _Mag ("Mag", 2D) = "white" {}
-        _Mag_param ("Star brightness", Range(0, 250)) = 100
-        _Mag_min ("min brightness", Range(0, 1)) = 0.025
-        _GlowIntensity ("Glow intensity", Range(0, 4)) = 1.8
-        _GlowFalloff ("Glow falloff", Range(4, 32)) = 12
-        _CoreBoost ("Core boost", Range(0, 4)) = 1.25
+
+        [Header(Star Size)]
+        _Mag_param ("Star size: 星表の明るさに掛けるサイズ倍率", Range(0, 250)) = 100
+        _Mag_min ("Minimum star size: 星のサイズに加算する値", Range(0, 1)) = 0.025
+        _MinimumAngularRadius ("Minimum star angular radius: 小さな星に確保する角半径 単位は度", Range(0.01, 2)) = 0.12
+
+        [Header(Star Brightness)]
+        _GlowIntensity ("Glow intensity: すべての星の光量に掛ける倍率", Range(0, 100)) = 1.8
+        _BrightnessPower ("Brightness response: 大きいほど暗い星をさらに暗くする", Range(0.1, 3)) = 0.35
+
+        [Header(Light Shape)]
+        _GlowFalloff ("Glow falloff: 大きいほど光の広がりが狭くなる", Range(4, 100)) = 12
+        _CoreBoost ("Core boost: 周辺の光に対して中心の光を強める量", Range(0, 100)) = 1.25
     }
     SubShader
     {
         Tags { "RenderType" = "Transparent" "Queue"="Transparent+1" }
-        Blend SrcAlpha One
+        Blend One One
         ZWrite Off
         LOD 100
 
@@ -30,7 +38,6 @@
             struct appdata
             {
                 float4 vertex : POSITION;
-                float2 uv : TEXCOORD0;
             };
             
             struct v2f
@@ -53,9 +60,11 @@
             float _GlowIntensity;
             float _GlowFalloff;
             float _CoreBoost;
+            float _MinimumAngularRadius;
+            float _BrightnessPower;
             
-            //テクスチャからfloat値を取り出す
-            float3 unpack(float2 uv) {
+            // 位置データのビット列を復元する
+            float3 ReadStarPosition(float2 uv) {
                 float texWidth = _Pos_TexelSize.z;
                 float2 e = float2(-1.0/texWidth/2, 1.0/texWidth/2);
                 uint3 v0 = uint3(DecodeHDR(tex2Dlod(_Pos, float4(uv + e.xy,0,0)), _Pos_HDR).xyz * 255.) << 0;
@@ -66,14 +75,10 @@
                 return asfloat(v);
             }
             
-            //テクスチャからint値を取り出す
-            float unpack_int(float2 uv) {
-                float v = 0;
-                v *= 256.; v += DecodeHDR(tex2Dlod(_Mag, float4(uv,0,0)), _Mag_HDR).r * 255.;
-                v *= 256.; v += DecodeHDR(tex2Dlod(_Mag, float4(uv,0,0)), _Mag_HDR).g * 255.;
-                v *= 256.; v += DecodeHDR(tex2Dlod(_Mag, float4(uv,0,0)), _Mag_HDR).b * 255.;
-                v /= 16777216;
-                return v;
+            // RGBに分けて保存された明るさを、0以上1未満の値へ復元する
+            float ReadStarBrightness(float2 uv) {
+                float3 bytes = DecodeHDR(tex2Dlod(_Mag, float4(uv, 0, 0)), _Mag_HDR).rgb * 255.0;
+                return dot(bytes, float3(65536.0, 256.0, 1.0)) / 16777216.0;
             }
             
             float3 ComputeAlignAxisX() 
@@ -97,28 +102,37 @@
             {
                 v2f o;
                 float texWidth = _Col_TexelSize.z;
-                float2 uv = float2((floor(v.vertex.z / texWidth) + 0.5) / texWidth, (fmod(v.vertex.z, texWidth) + 0.5) / texWidth);
+                float2 dataUV = float2((floor(v.vertex.z / texWidth) + 0.5) / texWidth, (fmod(v.vertex.z, texWidth) + 0.5) / texWidth);
 
-                float3 p = unpack(uv).xzy;
-                float3 c = DecodeHDR(tex2Dlod(_Col, float4(uv,0,0)), _Col_HDR).xyz;
+                float3 starPosition = ReadStarPosition(dataUV).xzy;
+                float3 starColor = DecodeHDR(tex2Dlod(_Col, float4(dataUV, 0, 0)), _Col_HDR).rgb;
+                float catalogBrightness = ReadStarBrightness(dataUV);
+                float3 worldPos = mul(unity_ObjectToWorld, float4(starPosition, 1));
 
-                float3 worldPos = mul(unity_ObjectToWorld, float4(p, 1));
-                o.color = c;
+                // 光量を色に反映させる
+                float starIntensity = pow(max(catalogBrightness, 0.000001), _BrightnessPower) * _GlowIntensity;
+                o.color = starColor * starIntensity;
 
-                float sz = unpack_int(uv) * _Mag_param + _Mag_min;
-                sz *= pow(determinant((float3x3)UNITY_MATRIX_M),1/3.0);
-                if(length(c) < 0.1 && length(p) < 0.1) sz = 0;
+                // サイズには元の星表データを使い、光量の設定とは分ける。
+                float starSize = catalogBrightness * _Mag_param + _Mag_min;
+                starSize *= pow(determinant((float3x3)UNITY_MATRIX_M), 1 / 3.0);
+                if(length(starColor) < 0.1 && length(starPosition) < 0.1) starSize = 0;
 
                 float3 xAxis = ComputeAlignAxisX();
                 float3 yAxis = ComputeAlignAxisY();
-                float2 offset;
                 float3x2 triVert = float3x2(
                     float2(0, 1),
                     float2(-0.9, -0.5),
                     float2(0.9, -0.5));
 
                 o.uv = triVert[round(v.vertex.y)];
-                offset = o.uv * sz;
+
+                // 星の見かけの大きさを計算し、最小値以下の星を大きくする
+                float distanceToStar = max(distance(worldPos, _WorldSpaceCameraPos), 0.0001);
+                float minimumRadius = distanceToStar * tan(radians(_MinimumAngularRadius));
+                float renderedSize = starSize > 0.0 ? max(starSize, minimumRadius * 2.0) : 0.0;
+
+                float2 offset = o.uv * renderedSize;
                 o.vertex = UnityWorldToClipPos(worldPos + xAxis * offset.x + yAxis * offset.y);
                 return o;
             }
@@ -126,13 +140,17 @@
             half4 frag (v2f i) : SV_Target
             {
                 float radiusSq = dot(i.uv, i.uv);
-                clip(0.25 - radiusSq);
+                // 円形に光を広げ、縁をぼかしてちらつきを抑える
+                float edgeWidth = max(fwidth(radiusSq), 0.0001);
+                half coverage = 1.0 - smoothstep(0.25 - edgeWidth, 0.25 + edgeWidth, radiusSq);
+                clip(coverage - (1.0 / 255.0));
 
+                // 中心から離れるほど光を弱め、中心付近をさらに明るくする。
                 half halo = exp2(-radiusSq * _GlowFalloff);
                 half core = exp2(-radiusSq * _GlowFalloff * 8.0);
-                half alpha = saturate(halo + core * 0.5);
-                half3 color = i.color * _GlowIntensity * (1.0 + core * _CoreBoost);
-                return half4(color, alpha);
+                half lightProfile = halo + core * _CoreBoost;
+                half3 emission = i.color * lightProfile * coverage;
+                return half4(emission, 0.0);
             }
             ENDCG
         }

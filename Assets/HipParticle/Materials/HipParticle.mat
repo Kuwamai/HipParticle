@@ -74,18 +74,20 @@ Material:
     m_Ints: []
     m_Floats:
     - _BumpScale: 1
-    - _CoreBoost: 4
+    - _BrightnessPower: 0.89
+    - _CoreBoost: 6.3
     - _Cutoff: 0.5
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
     - _GlossMapScale: 1
     - _Glossiness: 0.5
     - _GlossyReflections: 1
-    - _GlowFalloff: 23.6
-    - _GlowIntensity: 2.07
+    - _GlowFalloff: 20.5
+    - _GlowIntensity: 19.25
     - _Mag_min: 0.025
-    - _Mag_param: 73
+    - _Mag_param: 100
     - _Metallic: 0
+    - _MinimumAngularRadius: 0.15
     - _Mode: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.02

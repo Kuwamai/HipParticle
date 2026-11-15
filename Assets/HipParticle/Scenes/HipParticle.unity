@@ -197,6 +197,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: ConstellationLine
       objectReference: {fileID: 0}
+    - target: {fileID: 1734431167554066, guid: 4971b1241fd564745a3a33cbc9fdac5a, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4094628960794872, guid: 4971b1241fd564745a3a33cbc9fdac5a, type: 3}
       propertyPath: m_RootOrder
       value: 4
@@ -257,6 +261,10 @@ PrefabInstance:
     - target: {fileID: 1522327293923402, guid: 99b13468f11d47f46832dab1fe65bc35, type: 3}
       propertyPath: m_Name
       value: StarName
+      objectReference: {fileID: 0}
+    - target: {fileID: 1522327293923402, guid: 99b13468f11d47f46832dab1fe65bc35, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4770164131498000, guid: 99b13468f11d47f46832dab1fe65bc35, type: 3}
       propertyPath: m_RootOrder
@@ -460,7 +468,7 @@ Camera:
     height: 1
   near clip plane: 0.3
   far clip plane: 1000
-  field of view: 28
+  field of view: 30
   orthographic: 0
   orthographic size: 5
   m_Depth: -1
