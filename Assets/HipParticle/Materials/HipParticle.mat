@@ -73,8 +73,8 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _BumpScale: 1
     - _BrightnessPower: 0.89
+    - _BumpScale: 1
     - _CoreBoost: 6
     - _Cutoff: 0.5
     - _DetailNormalMapScale: 1
@@ -82,12 +82,12 @@ Material:
     - _GlossMapScale: 1
     - _Glossiness: 0.5
     - _GlossyReflections: 1
-    - _GlowFalloff: 20
-    - _GlowIntensity: 19.25
+    - _GlowFalloff: 18
+    - _GlowIntensity: 16
     - _Mag_min: 0.025
-    - _Mag_param: 100
+    - _Mag_param: 90
     - _Metallic: 0
-    - _MinimumAngularRadius: 0.15
+    - _MinimumAngularRadius: 0.18
     - _Mode: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.02
