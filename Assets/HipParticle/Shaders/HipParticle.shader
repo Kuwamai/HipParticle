@@ -15,6 +15,9 @@
         _GlowIntensity ("Glow intensity: すべての星の光量に掛ける倍率", Range(0, 100)) = 1.8
         _BrightnessPower ("Brightness response: 大きいほど暗い星をさらに暗くする", Range(0.1, 3)) = 0.35
 
+        [Header(Star Color)]
+        _Saturation ("Saturation: 1で元の色、0で白黒", Range(0, 1)) = 0.7
+
         [Header(Light Shape)]
         _GlowFalloff ("Glow falloff: 大きいほど光の広がりが狭くなる", Range(4, 100)) = 12
         _CoreBoost ("Core boost: 周辺の光に対して中心の光を強める量", Range(0, 100)) = 1.25
@@ -62,6 +65,7 @@
             float _CoreBoost;
             float _MinimumAngularRadius;
             float _BrightnessPower;
+            float _Saturation;
             
             // 位置データのビット列を復元する
             float3 ReadStarPosition(float2 uv) {
@@ -111,7 +115,10 @@
 
                 // 光量を色に反映させる
                 float starIntensity = pow(max(catalogBrightness, 0.000001), _BrightnessPower) * _GlowIntensity;
-                o.color = starColor * starIntensity;
+                // 明るさを保ちながら彩度を下げる。
+                float luminance = dot(starColor, float3(0.2126, 0.7152, 0.0722));
+                float3 displayColor = lerp(luminance.xxx, starColor, saturate(_Saturation));
+                o.color = displayColor * starIntensity;
 
                 // サイズには元の星表データを使い、光量の設定とは分ける。
                 float starSize = catalogBrightness * _Mag_param + _Mag_min;
