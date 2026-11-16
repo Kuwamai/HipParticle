@@ -55,7 +55,6 @@
             float4 _Pos_TexelSize;
             sampler2D _Col;
             float4 _Col_HDR;
-            float4 _Col_TexelSize;
             sampler2D _Mag;
             float4 _Mag_HDR;
             float _Mag_param;
@@ -105,8 +104,8 @@
             v2f vert (appdata v)
             {
                 v2f o;
-                float texWidth = _Col_TexelSize.z;
-                float2 dataUV = float2((floor(v.vertex.z / texWidth) + 0.5) / texWidth, (fmod(v.vertex.z, texWidth) + 0.5) / texWidth);
+                // メッシュのXYから星データのUVを取得する。
+                float2 dataUV = v.vertex.xy;
 
                 float3 starPosition = ReadStarPosition(dataUV).xzy;
                 float3 starColor = DecodeHDR(tex2Dlod(_Col, float4(dataUV, 0, 0)), _Col_HDR).rgb;
@@ -132,7 +131,8 @@
                     float2(-0.9, -0.5),
                     float2(0.9, -0.5));
 
-                o.uv = triVert[round(v.vertex.y)];
+                // メッシュのZから三角形の頂点番号を取得する。
+                o.uv = triVert[(int)v.vertex.z];
 
                 // 星の見かけの大きさを計算し、最小値以下の星を大きくする
                 float distanceToStar = max(distance(worldPos, _WorldSpaceCameraPos), 0.0001);
