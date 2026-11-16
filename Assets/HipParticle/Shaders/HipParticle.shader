@@ -7,20 +7,20 @@
         [HDR] _Mag ("Mag", 2D) = "white" {}
 
         [Header(Star Size)]
-        _Mag_param ("Star size: 星表の明るさに掛けるサイズ倍率", Range(0, 250)) = 100
-        _Mag_min ("Minimum star size: 星のサイズに加算する値", Range(0, 1)) = 0.025
-        _MinimumAngularRadius ("Minimum star angular radius: 小さな星に確保する角半径 単位は度", Range(0.01, 2)) = 0.12
+        _Mag_param ("Star size: 星のサイズ", Range(0, 250)) = 100
+        _Mag_min ("Minimum star size: 星の最小サイズ", Range(0, 1)) = 0.025
+        _MinimumAngularRadius ("Minimum star angular radius: 星の見かけの最小サイズ", Range(0.01, 2)) = 0.12
 
         [Header(Star Brightness)]
-        _GlowIntensity ("Glow intensity: すべての星の光量に掛ける倍率", Range(0, 100)) = 1.8
-        _BrightnessPower ("Brightness response: 大きいほど暗い星をさらに暗くする", Range(0.1, 3)) = 0.35
+        _GlowIntensity ("Glow intensity: 星の光量に掛ける倍率", Range(0, 100)) = 1.8
+        _BrightnessPower ("Brightness response: 星の明暗の強弱", Range(0.1, 3)) = 0.35
 
         [Header(Star Color)]
-        _Saturation ("Saturation: 1で元の色、0で白黒", Range(0, 1)) = 0.7
+        _Saturation ("Saturation: 鮮やかさ", Range(0, 1)) = 0.7
 
         [Header(Light Shape)]
-        _GlowFalloff ("Glow falloff: 大きいほど光の広がりが狭くなる", Range(4, 100)) = 12
-        _CoreBoost ("Core boost: 周辺の光に対して中心の光を強める量", Range(0, 100)) = 1.25
+        _GlowFalloff ("Glow falloff: 光の広がりの減衰具合", Range(4, 100)) = 12
+        _CoreBoost ("Core boost: 星の中心の明るい部分のサイズ", Range(0, 100)) = 1.25
     }
     SubShader
     {
